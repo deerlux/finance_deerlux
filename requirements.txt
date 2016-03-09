@@ -4,4 +4,4 @@ sqlalchemy>=1.0.12
 flask-sqlalchemy>=2.0
 scrapyd>=1.1.0
 lxml>=3.5.0
-alembic>=0.8.4-1
+alembic>=0.8.4
