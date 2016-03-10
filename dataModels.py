@@ -128,7 +128,7 @@ if __name__ == '__main__':
     import os
     from sqlalchemy.orm import sessionmaker
 
-    url = os.environ('OPENSHIFT_POSTGRESQL_DB_URL')
+    url = os.environ['OPENSHIFT_POSTGRESQL_DB_URL']
     engine = sa.create_engine(url)
     Session = sessionmaker()
     session = Session(bind=engine)
