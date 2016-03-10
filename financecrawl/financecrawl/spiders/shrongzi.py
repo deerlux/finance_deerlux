@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import scrapy
-import scrapy.log
 import datetime, os, re
 import xlrd
 from financecrawl.items import RongziItem, RongziMingxiItem
@@ -28,7 +29,7 @@ class ShrongziSpider(scrapy.Spider):
     start_urls = (url,)
 
     def parse(self, response):
-        self.log("Crawled url: {0}".format(response.url), scrapy.log.INFO)
+        self.logger.info("Crawled url: {0}".format(response.url))
         
         xls = xlrd.open_workbook(file_contents=response.body)
         sheet1 = xls.sheet_by_index(0)

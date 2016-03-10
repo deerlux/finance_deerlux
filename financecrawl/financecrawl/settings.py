@@ -8,12 +8,15 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
+import logging
 
 BOT_NAME = 'financecrawl'
 
 SPIDER_MODULES = ['financecrawl.spiders']
 NEWSPIDER_MODULE = 'financecrawl.spiders'
 
+LOG_LEVEL = logging.INFO
+LOG_FILE = 'financecrawl.log'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'financecrawl (+http://www.yourdomain.com)'
@@ -61,9 +64,9 @@ NEWSPIDER_MODULE = 'financecrawl.spiders'
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'financecrawl.pipelines.SomePipeline': 300,
-#}
+ITEM_PIPELINES = {
+    'financecrawl.pipelines.RongziPipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
