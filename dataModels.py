@@ -1,4 +1,6 @@
+#!/usr/bin/env python2
 # coding:utf8
+
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -122,3 +124,13 @@ class Stock(Base):
     financing_details = relationship('FinancingDetail', backref='stock')
 
 
+if __name__ == '__main__':
+    import os
+    from sqlalchemy.orm import sessionmaker
+
+    url = os.environ('OPENSHIFT_POSTGRESQL_DB_URL')
+    engine = sa.create_engine(url)
+    Session = sessionmaker()
+    session = Session(bind=engine)
+
+    Base.metadata.create_all(bind=engine)
