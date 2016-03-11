@@ -16,7 +16,7 @@ SPIDER_MODULES = ['financecrawl.spiders']
 NEWSPIDER_MODULE = 'financecrawl.spiders'
 
 LOG_LEVEL = logging.INFO
-LOG_FILE = 'financecrawl.log'
+#LOG_FILE = 'financecrawl.log'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'financecrawl (+http://www.yourdomain.com)'
