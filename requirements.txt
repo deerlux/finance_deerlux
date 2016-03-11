@@ -8,3 +8,4 @@ Flask-Alembic>=1.2.1
 flask-login>=0.3.2
 flask-openid>=1.2.5
 xlrd>=0.9.4
+setuptools>=1.0
