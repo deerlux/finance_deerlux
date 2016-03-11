@@ -21,7 +21,7 @@ class RongziItem(scrapy.Item):
 
 
 class RongziMingxiItem(scrapy.Item):
-    '''单支股票/基金融资融券数据'''
+    '''单支或多支股票/基金融资融券数据'''
     trading_day = scrapy.Field()
     market = scrapy.Field()
     stock_code = scrapy.Field()
