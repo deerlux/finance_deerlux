@@ -29,6 +29,8 @@ class ShrongziSpider(scrapy.Spider):
     start_urls = (url,)
 
     def parse(self, response):
+        if response.status != 200:
+            return 
         self.logger.info("Crawled url: {0}".format(response.url))
         
         xls = xlrd.open_workbook(file_contents=response.body)
