@@ -1,4 +1,5 @@
 #!/bin/sh
-cd ~/app-root/repo/financecrawl
-scrapy crawl shrongzi 
+#cd ~/app-root/repo/financecrawl
+#scrapy crawl shrongzi 
+scrapy
 
