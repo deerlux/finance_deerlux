@@ -7,7 +7,7 @@
 
 from __future__ import unicode_literals
 
-from financecrawl.items import RongziItem, RongziMingxiItem
+from financecrawl.items import RongziItem, RongziMingxiItem, StockAccountItem
 from financecrawl.dataModels import *
 
 from sqlalchemy import create_engine
@@ -123,6 +123,27 @@ class RongziPipeline(object):
         
         return item
 
-class FinancecrawlPipeline(object):
+class StockAccountPipeline(object):
     def process_item(self, item, spider):
+        if not (type(item) is StockAccountItem):
+            return item
+        
+        db_item = StockAccount()
+        
+        columns = ['trading_date', 'personal_new', 'company_new',
+                'personal_total_a', 'company_total_a',
+                'personal_total_b', 'company_total_b',
+                'position_a', 'position_b',
+                'trading_a', 'trading_b']
+
+        for column in columns:
+            exec('db_item.{0} = item["{0}"]'.format(column))
+
+        session.add(db_item)
+        try:
+            session.commit()
+        except Exception as e:
+            logging.error('Error when insert stockaccount: {0}'.format(e))
+            session.rollback()
+
         return item

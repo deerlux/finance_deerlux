@@ -34,3 +34,22 @@ class RongziMingxiItem(scrapy.Item):
     rongquan_yue = scrapy.Field()
     stock_name = scrapy.Field()
 
+class StockAccountItem(scrapy.Item):
+    trading_date = scrapy.Field()
+
+    personal_new = scrapy.Field()
+    company_new = scrapy.Field()
+
+    personal_total_a = scrapy.Field()
+    personal_total_b = scrapy.Field()
+
+    company_total_a = scrapy.Field()
+    company_total_b = scrapy.Field()
+    
+    position_a = scrapy.Field()
+    position_b = scrapy.Field()
+
+    trading_a = scrapy.Field()
+    trading_b = scrapy.Field()
+
+
