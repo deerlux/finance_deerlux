@@ -124,6 +124,26 @@ class Stock(Base):
     financing_details = relationship('FinancingDetail', backref='stock')
 
 
+class StockAccount(Base):
+    __tablename__ = 'stock_account'
+    trading_date = sa.Column(sa.Date, unique=True, primary_key=True)
+
+    personal_new = sa.Column(sa.Float)
+    company_new = sa.Column(sa.Float)
+
+    personal_total_a = sa.Column(sa.Float)
+    personal_total_b = sa.Column(sa.Float)
+
+    company_total_a = sa.Column(sa.Float)
+    company_total_b = sa.Column(sa.Float)
+    
+    position_a = sa.Column(sa.Float)
+    position_b = sa.Column(sa.Float)
+
+    trading_a = sa.Column(sa.Float)
+    trading_b = sa.Column(sa.Float)
+
+
 if __name__ == '__main__':
     import os
     from sqlalchemy.orm import sessionmaker
@@ -134,3 +154,5 @@ if __name__ == '__main__':
     session = Session(bind=engine)
 
     Base.metadata.create_all(bind=engine)
+
+
