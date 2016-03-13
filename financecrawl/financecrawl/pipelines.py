@@ -73,6 +73,8 @@ class RongziPipeline(object):
             logging.warning('record mingxi insert failed: {0}'.format(e.message.decode('utf-8')))
             session.rollback()
 
+        return item
+
     def update_stock_table(self, stock):
         '''判断股票数据在不在stock表中，如果没有的话插入，如果股票名称更改则改之
         stock为Stock ORM类型'''
@@ -102,20 +104,21 @@ class RongziPipeline(object):
         mingxi_new = []
         for i, code in enumerate(item['stock_code']):
             mingxi_new.append(
-                  {'trading_day':item['trading_day'],
-                   'market':'sz',
-                   'stock_code':code,
-                   'rongzi_yue':item['rongzi_yue'][i],
-                   'rongzi_mairu':item['rongzi_mairu'][i],
-                   'rongquan_yuliang':item['rongquan_yuliang'][i],
-                   'rongquan_maichu':item['rongquan_maichu'][i],
-                   'rongquan_yue':item['rongquan_yue'][i]})
+                {'trading_day':item['trading_day'],
+                    'market':'sz',
+                    'stock_code':code,
+                    'financing_remain':item['rongzi_yue'][i],
+                    'financing_buy':item['rongzi_mairu'][i],
+                    'stock_remain':item['rongquan_yuliang'][i],
+                    'stock_sell':item['rongquan_maichu'][i],
+                    'stock_remain_money':item['rongquan_yue'][i]})
 
         conn = engine.connect()
         ins = FinancingDetail.__table__.insert()
 
         try:
             conn.execute(ins, mingxi_new)
+            logging.info('{0} records is inserted'.format(len(item['stock_code'])))
         except IntegrityError as e:
             logging.warning('Error to insert stock rongzi data to database: {0}'.format(e.message.decode('utf-8')))
             

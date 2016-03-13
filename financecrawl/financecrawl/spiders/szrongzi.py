@@ -4,6 +4,7 @@ import datetime, re, string
 
 import lxml
 from financecrawl.items import RongziItem, RongziMingxiItem
+import dateutil
 
 
 def str2float(str_in):
@@ -15,21 +16,30 @@ def str2float(str_in):
 class SzrongziSpider(scrapy.Spider):
     name = "szrongzi"
     allowed_domains = ["www.szse.cn"]
-    start_urls = []
+    start_urls = ('http://www.szse.cn/main/disclosure/rzrqxx/rzrqjy/',)
 
-    def __init__(self, category=None, *args, **kwargs):
-        super(SzrongziSpider, self).__init__(*args, **kwargs)
-
-        day = datetime.date.today() - datetime.timedelta(1)
-
+    def parse(self, response):
+        txtDate = response.xpath('//form[@name="frmtab2"]//tr[1]//span[2]/text()').extract()[0]
 
         urlbase1 = 'http://www.szse.cn/szseWeb/ShowReport.szse?SHOWTYPE=EXCEL&CATALOGID=1837_xxpl&tab2PAGENUM=1&ENCODE=1&TABKEY=tab1&txtDate='
         urlbase2 = 'http://www.szse.cn/szseWeb/ShowReport.szse?SHOWTYPE=EXCEL&CATALOGID=1837_xxpl&tab2PAGENUM=1&ENCODE=1&TABKEY=tab2&txtDate='
-        
-        self.start_urls.append(urlbase1 + day.strftime('%Y-%m-%d'))
-        self.start_urls.append(urlbase2 + day.strftime('%Y-%m-%d'))
 
-    def parse(self, response):
+        yield(scrapy.Request(urlbase1+txtDate, callback=self.parse_excel))
+        yield(scrapy.Request(urlbase2+txtDate, callback=self.parse_excel))
+
+#    def __init__(self, category=None, *args, **kwargs):
+#        super(SzrongziSpider, self).__init__(*args, **kwargs)
+#
+#        day = datetime.date.today() - datetime.timedelta(1)
+#
+#
+#        urlbase1 = 'http://www.szse.cn/szseWeb/ShowReport.szse?SHOWTYPE=EXCEL&CATALOGID=1837_xxpl&tab2PAGENUM=1&ENCODE=1&TABKEY=tab1&txtDate='
+#        urlbase2 = 'http://www.szse.cn/szseWeb/ShowReport.szse?SHOWTYPE=EXCEL&CATALOGID=1837_xxpl&tab2PAGENUM=1&ENCODE=1&TABKEY=tab2&txtDate='
+#        
+#        self.start_urls.append(urlbase1 + day.strftime('%Y-%m-%d'))
+#        self.start_urls.append(urlbase2 + day.strftime('%Y-%m-%d'))
+
+    def parse_excel(self, response):
         if response.status != 200:
             return
 
