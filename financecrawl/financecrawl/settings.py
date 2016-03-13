@@ -9,14 +9,16 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 import logging
+import os
 
 BOT_NAME = 'financecrawl'
 
 SPIDER_MODULES = ['financecrawl.spiders']
 NEWSPIDER_MODULE = 'financecrawl.spiders'
 
-LOG_LEVEL = logging.INFO
+LOG_LEVEL = logging.WARN
 #LOG_FILE = 'financecrawl.log'
+LOG_FILE=os.path.join(os.environ['OPENSHIFT_DATA_DIR'], 'financecrawl.log')
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'financecrawl (+http://www.yourdomain.com)'
