@@ -1,3 +1,0 @@
-#!/bin/sh
-cd ~/app-root/repo
-alembic upgrade af47
