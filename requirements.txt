@@ -11,4 +11,4 @@ xlrd>=0.9.4
 setuptools>=1.0
 matplotlib>=1.5.1
 lxml>=3.5.0
-dateutil>=2.5.0
+python-dateutil>=2.4.2
