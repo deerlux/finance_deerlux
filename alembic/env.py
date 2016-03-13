@@ -42,7 +42,8 @@ def run_migrations_offline():
     script output.
 
     """
-    url = config.get_main_option(environ['OPENSHIFT_POSTGRESQL_DB_URL'])
+    #url = config.get_main_option(environ['OPENSHIFT_POSTGRESQL_DB_URL'])
+    url = environ['OPENSHIFT_POSTGRESQL_DB_URL']
     context.configure(
         url=url, target_metadata=target_metadata, literal_binds=True)
 
