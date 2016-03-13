@@ -1,5 +1,5 @@
 #!/bin/sh
-cd ~/app-root/repo/financecrawl
+cd $OPENSHIFT_REPO_DIR/financecrawl
 scrapy crawl shrongzi 
 scrapy crawl szrongzi
 #scrapy

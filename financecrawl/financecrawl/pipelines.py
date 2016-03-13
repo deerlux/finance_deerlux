@@ -143,7 +143,7 @@ class StockAccountPipeline(object):
         try:
             session.commit()
         except Exception as e:
-            logging.error('Error when insert stockaccount: {0}'.format(e))
+            logging.error('Error when insert stockaccount: {0}'.format(e.message.decode('utf-8')))
             session.rollback()
 
         return item

@@ -3,6 +3,7 @@ import scrapy
 
 import datetime
 from financecrawl.items import StockAccountItem
+from dateutil.parser import parse
 
 class StockaccountSpider(scrapy.Spider):
     name = "stockaccount"
@@ -18,7 +19,8 @@ class StockaccountSpider(scrapy.Spider):
         if not date_in:
             crawl_date = datetime.date.today() - datetime.timedelta(today.weekday())
         else:
-            crawl_date = date_in - datetime.timedelta(date_in.weekday())
+            temp_date = parse(date_in).date()
+            crawl_date = temp_date - datetime.timedelta(temp_date.weekday())
 
         self.crawl_date = crawl_date
 
@@ -31,26 +33,37 @@ class StockaccountSpider(scrapy.Spider):
     def parse(self, response):
         if response.status != 200:
             return
-        try:
-            texts = response.xpath('//tbody//td[2]//span/text()').extract()
-        except IndexError as e:
-            self.logger.info('Error occured when parse result {0}'.format(
-                reponse.url))
-            return
+#        try:
+#            texts = response.xpath('//tbody//td[2]//span/text()').extract()
+#        except IndexError as e:
+#            self.logger.warn('Error occured when parse result {0}'.format(
+#                reponse.url))
+#            return
         
-        str2float = lambda x: float(x.replace(',',''))
+        result = response.xpath('//td//tbody//tr')
+        if len(result) <21:
+            self.logger.error('Error occured when parse result {0}'.format(
+                response.url))
+            return
+        rel_xpath = './/td[2]//span/text()'
+
+        str2float = lambda x: float(x.strip().replace(',',''))
+
+        extract_data = lambda x: str2float(result[x].xpath(rel_xpath).extract()[0])
     
         item = StockAccountItem()
         item['trading_date'] = self.crawl_date
-        item['personal_new'] = str2float(texts[2])
-        item['company_new'] = str2float(texts[3])
-        item['personal_total_a'] = str2float(texts[6])
-        item['personal_total_b'] = str2float(texts[7])
-        item['company_total_a'] = str2float(texts[9])
-        item['company_total_b'] = str2float(texts[10])
-        item['position_a'] = str2float(texts[12])
-        item['position_b'] = str2float(texts[13])
-        item['trading_a'] = str2float(texts[15])
-        item['trading_b'] = str2float(texts[16])
+
+        item['personal_new'] = extract_data(2)
+        item['company_new'] = extract_data(3)
+
+        item['personal_total_a'] = extract_data(7)
+        item['personal_total_b'] = extract_data(8)
+        item['company_total_a'] = extract_data(11)
+        item['company_total_b'] = extract_data(12)
+        item['position_a'] = extract_data(15)
+        item['position_b'] = extract_data(16)
+        item['trading_a'] = extract_data(19)
+        item['trading_b'] = extract_data(20)
         
         return item
