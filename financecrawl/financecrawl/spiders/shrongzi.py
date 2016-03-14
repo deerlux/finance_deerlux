@@ -5,28 +5,39 @@ import scrapy
 import datetime, os, re
 import xlrd
 from financecrawl.items import RongziItem, RongziMingxiItem
+from dateutil import parser
 
-def is_weekend(in_date):
-    '''判断是否是周末
-    in_date     是一个日期类型的变量
-    返回值：    如果是周末则返回假否则返回真'''
-    weekday = in_date.weekday()
-    if weekday == 5 or weekday == 6:
-        return True
-    else:
-        return False
 
- 
+#def is_weekend(in_date):
+#    '''判断是否是周末
+#    in_date     是一个日期类型的变量
+#    返回值：    如果是周末则返回假否则返回真'''
+#    weekday = in_date.weekday()
+#    if weekday == 5 or weekday == 6:
+#        return True
+#    else:
+#        return False
+
+is_weekend = lambda x: x.weekday() ==5 or x.weekday()==6
+gen_url = lambda crawl_date: '{0}{1}{2}{3}'.format(
+       'http://www.sse.com.cn/market/dealingdata/overview/margin/a/',
+       'rzrqjygk',
+       crawl_date.strftime('%Y%m%d'),
+       '.xls')
+
 class ShrongziSpider(scrapy.Spider):
     name = "shrongzi"
     allowed_domains = ["www.sse.com.cn"]
-    day = datetime.date.today() - datetime.timedelta(1)
-    url = '{0}{1}{2}{3}'.format(
-            'http://www.sse.com.cn/market/dealingdata/overview/margin/a/',
-            'rzrqjygk', 
-            day.strftime('%Y%m%d'), 
-            '.xls')
-    start_urls = (url,)
+
+    def __init__(self, date_in=None, *args, **kwargs):
+        super(ShrongziSpider, self).__init__(*args, **kwargs)
+        if date_in:
+            crawl_date = parser.parse(date_in)
+        else:
+            today = datetime.date.today()
+            crawl_date = datetime.date.today() - datetime.timedelta(1)
+
+        self.start_urls = (gen_url(crawl_date),)
 
     def parse(self, response):
         if response.status != 200:
