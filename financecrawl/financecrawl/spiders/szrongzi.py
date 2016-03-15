@@ -4,7 +4,7 @@ import datetime, re, string
 
 import lxml
 from financecrawl.items import RongziItem, RongziMingxiItem
-import dateutil
+from dateutil.parser import parse
 
 
 def str2float(str_in):
@@ -18,8 +18,18 @@ class SzrongziSpider(scrapy.Spider):
     allowed_domains = ["www.szse.cn"]
     start_urls = ('http://www.szse.cn/main/disclosure/rzrqxx/rzrqjy/',)
 
+    def __init__(self, date_in=None, *args, **kwargs):
+        super(SzrongziSpider, self).__init__(*args, **kwargs)
+        if date_in:
+            self.date_in = parse(date_in).date()
+        else:
+            self.date_in = None
+
     def parse(self, response):
-        txtDate = response.xpath('//form[@name="frmtab2"]//tr[1]//span[2]/text()').extract()[0]
+        if self.date_in:
+            txtDate = self.date_in.strftime('%Y-%m-%d')
+        else:
+            txtDate = response.xpath('//form[@name="frmtab2"]//tr[1]//span[2]/text()').extract()[0]
 
         urlbase1 = 'http://www.szse.cn/szseWeb/ShowReport.szse?SHOWTYPE=EXCEL&CATALOGID=1837_xxpl&tab2PAGENUM=1&ENCODE=1&TABKEY=tab1&txtDate='
         urlbase2 = 'http://www.szse.cn/szseWeb/ShowReport.szse?SHOWTYPE=EXCEL&CATALOGID=1837_xxpl&tab2PAGENUM=1&ENCODE=1&TABKEY=tab2&txtDate='
