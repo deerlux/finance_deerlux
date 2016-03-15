@@ -105,7 +105,7 @@ class RongziPipeline(object):
         for i, code in enumerate(item['stock_code']):
             mingxi_new.append(
                 {'trading_day':item['trading_day'],
-                    'market':'sz',
+                    'market':item['market'],
                     'stock_code':code,
                     'financing_remain':item['rongzi_yue'][i],
                     'financing_buy':item['rongzi_mairu'][i],

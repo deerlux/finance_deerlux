@@ -64,25 +64,22 @@ class ShrongziSpider(scrapy.Spider):
             item["rongquan_maichu"] = float(sheet1.row_values(k)[4])
             yield item
 
-        for k in range(sheet2.nrows):
-            if k == 0:
-                continue
-            mingxi_item = RongziMingxiItem()
-            
-            mingxi_item["trading_day"] = trading_day
-            mingxi_item["market"] = "sh"
-            try:
-                mingxi_item["stock_code"] = sheet2.row_values(k)[0]
-                mingxi_item["stock_name"] = sheet2.row_values(k)[1]
-                mingxi_item["rongzi_yue"] = float(sheet2.row_values(k)[2])
-                mingxi_item["rongzi_mairu"] = float(sheet2.row_values(k)[3])
-                mingxi_item["rongzi_changhuan"] = float(sheet2.row_values(k)[4])
-                mingxi_item["rongquan_yuliang"] = float(sheet2.row_values(k)[5])
-                mingxi_item["rongquan_maichu"] = float(sheet2.row_values(k)[6])
-                mingxi_item["rongquan_changhuan"] = float(sheet2.row_values(k)[7])
-                mingxi_item["rongquan_yue"] = None
-            except Exception as e:
-                self.log(e, scrapy.log.ERROR)
+        mingxi_item = RongziMingxiItem()
+        mingxi_item["trading_day"] = trading_day
+        mingxi_item['market']='sh'
 
-            yield mingxi_item
+        index = range(1,sheet2.nrows)
+        mingxi_item['stock_code'] = [sheet2.row_values(x)[0] for x in index]
+        mingxi_item['stock_name'] = [sheet2.row_values(x)[1] for x in index]
+
+        mingxi_item["rongzi_yue"] = [float(sheet2.row_values(k)[2]) for k in index]
+        mingxi_item["rongzi_mairu"] = [float(sheet2.row_values(k)[3]) for k in index] 
+        mingxi_item["rongzi_changhuan"] = [float(sheet2.row_values(k)[4]) for k in index]
+        mingxi_item["rongquan_yuliang"] = [float(sheet2.row_values(k)[5]) for k in index]
+        mingxi_item["rongquan_maichu"] = [float(sheet2.row_values(k)[6]) for k in index]
+        mingxi_item["rongquan_changhuan"] = [float(sheet2.row_values(k)[7]) for k in index]
+
+        mingxi_item["rongquan_yue"] = [None for k in index]
+        
+        yield mingxi_item
  
