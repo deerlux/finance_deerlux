@@ -84,7 +84,7 @@ class RongziPipeline(object):
         if len(result) == 0:
             session.add(stock)
             session.commit()
-            logging.info('stock info is inserted: %s: %s' %(stock.stock_code, stock_name.decode('utf-8'))) 
+            logging.info('stock info is inserted: %s: %s' %(stock.stock_code, stock.stock_name.decode('utf-8'))) 
 
         elif len(result) == 1:
             if result[0].stock_name != stock.stock_name:
