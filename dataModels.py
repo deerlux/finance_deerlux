@@ -123,6 +123,11 @@ class Stock(Base):
 
     financing_details = relationship('FinancingDetail', backref='stock')
 
+class StockNew(Base):
+    __tablename__ = 'stock_new'
+    stock_code = sa.Column(sa.String(12), primary_key=True)
+    stock_name = sa.Column(sa.String(32), nullable=False)
+    market = sa.Column(sa.String(8))
 
 class StockAccount(Base):
     __tablename__ = 'stock_account'
@@ -153,6 +158,6 @@ if __name__ == '__main__':
     Session = sessionmaker()
     session = Session(bind=engine)
 
-    Base.metadata.create_all(bind=engine)
+#    Base.metadata.create_all(bind=engine)
 
 
