@@ -129,6 +129,8 @@ class StockNew(Base):
     stock_name = sa.Column(sa.String(32), nullable=False)
     market = sa.Column(sa.String(8))
 
+    day_prices = relationship('StockDayPrice', backref='stock_new')
+
 class StockAccount(Base):
     __tablename__ = 'stock_account'
     trading_date = sa.Column(sa.Date, unique=True, primary_key=True)
@@ -147,6 +149,25 @@ class StockAccount(Base):
 
     trading_a = sa.Column(sa.Float)
     trading_b = sa.Column(sa.Float)
+
+class StockDayPrice(Base):
+    __tablename__='stock_day_price'
+    
+    data_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    trading_date = sa.Column(sa.Date)
+    stock_code = sa.Column(sa.ForeignKey('stock_new.stock_code'))
+
+    open_price = sa.Column(sa.Float)
+    high_price = sa.Column(sa.Float)
+    low_price = sa.Column(sa.Float)
+    close_price = sa.Column(sa.Float)
+
+    volume = sa.Column(sa.Integer)
+    adj_close = sa.Column(sa.Float)
+    
+    __table_args__ = (
+            sa.UniqueConstraint('stock_code', 'trading_date'),
+            )
 
 
 if __name__ == '__main__':
