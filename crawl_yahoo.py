@@ -10,7 +10,7 @@ import pandas as pd
 
 DATA_DIR = os.environ['OPENSHIFT_DATA_DIR']
 
-logging.basicConfig(level=logging.DEBUG, 
+logging.basicConfig(level=logging.WARN, 
         filename=os.path.join(DATA_DIR, 'crawl_yahoo.log'),
         format='[%(levelname)s]: %(asctime)s %(filename)s:%(lineno)d %(message)s')
 
@@ -151,13 +151,6 @@ class YahooCrawler:
             logging.warn(e) 
        
 if __name__ == '__main__':
-    crawler = YahooCrawler(stockfile=os.path.join(os.environ['OPENSHIFT_DATA_DIR'],
-        'stocks.txt'))
-
-    start = yestoday() - datetime.timedelta(1)
+    crawler = YahooCrawler(db_enabled=True)
     crawler.run(start=start)
-    
-    filename = start.strftime('%Y%m%d') + '.pkl'
-    
-    crawler.save2pickle(filename)
-    #crawler.save2database(crawler.crawled_data)
+    crawler.save2database(crawler.crawled_data)
