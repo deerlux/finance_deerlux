@@ -6,7 +6,6 @@ from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 
 import numpy as np
-import pandas_datareader.data as web
 import pandas as pd
 
 DATA_DIR = os.environ['OPENSHIFT_DATA_DIR']
@@ -67,6 +66,8 @@ class YahooCrawler:
                
     @classmethod
     def crawl_yahoo_price(cls, code, start=None, end=None):
+        import pandas_datareader.data as web
+
         try:
             logging.debug('Starting crawling %s' % code)
             data = web.DataReader(code, 'yahoo',start=start, end=end)
@@ -153,7 +154,7 @@ if __name__ == '__main__':
     crawler = YahooCrawler(stockfile=os.path.join(os.environ['OPENSHIFT_DATA_DIR'],
         'stocks.txt'))
 
-    start = yestoday - datetime.timedelta(1)
+    start = yestoday() - datetime.timedelta(1)
     crawler.run(start=start)
     
     filename = start.strftime('%Y%m%d') + '.pkl'
