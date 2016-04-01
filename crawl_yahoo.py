@@ -152,5 +152,6 @@ class YahooCrawler:
        
 if __name__ == '__main__':
     crawler = YahooCrawler(db_enabled=True)
+    start = None
     crawler.run(start=start)
     crawler.save2database(crawler.crawled_data)
