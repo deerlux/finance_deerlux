@@ -146,6 +146,7 @@ class YahooCrawler:
         total_num = len(dicts)
         batch_ins = 1000
         curr = 0
+        logging.debug('Total records is %d' % total_num)
         while curr<total_num:
             try:
                 temp = curr + batch_ins
@@ -156,15 +157,9 @@ class YahooCrawler:
                     temp-curr))
                 curr = temp
             except Exception as e:
-                logging.error(e)
+                #logging.error(e)
+                logging.error('Error')
                 break
-
-        try:
-            session.execute(ins, dicts)
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            logging.warn(e)
        
 if __name__ == '__main__':
     crawler = YahooCrawler(db_enabled=True)
