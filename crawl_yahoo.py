@@ -108,7 +108,7 @@ class YahooCrawler:
         if self.db_enabled:
             starts = self._get_start_from_db()
             logging.debug('starts is')
-            for c, s in zip(self.codes, starts)
+            for c, s in zip(self.codes, starts):
                 logging.debug(c, s)
         elif type(start) is list:
             starts = start
