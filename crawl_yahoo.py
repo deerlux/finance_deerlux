@@ -56,7 +56,7 @@ class YahooCrawler:
         result = self.session.query(StockNew.stock_code).all()
         temp_codes = [x.stock_code for x in result]
         self.codes = list(_get_stock_ps(temp_codes))
-        logging.debug(self.codes)
+#        logging.debug(self.codes)
 
     def _get_stocks_from_file(self, filename):
         with open(filename) as f:
@@ -108,7 +108,8 @@ class YahooCrawler:
         if self.db_enabled:
             starts = self._get_start_from_db()
             logging.debug('starts is')
-            logging.debug(starts)
+            for c, s in zip(self.codes, starts)
+                logging.debug(c, s)
         elif type(start) is list:
             starts = start
         else:
@@ -146,10 +147,25 @@ class YahooCrawler:
         ins = StockDayPrice.__table__.insert()
         dicts = data.reset_index().to_dict('records')
 
+        total_num = len(dicts)
+        batch_ins = 1000
+        curr = 0
+        while curr<total_num:
+            try:
+                temp = curr + batch_ins
+                if temp>total_num:
+                    temp = total_num
+                session.execute(ins, dicts[curr:temp])
+                logging.info('{0} stock records are inserted'.format(
+                    temp-curr]))
+                curr = temp
+            except Exception as e:
+                logging.error(e)
+                break
+
         try:
             session.execute(ins, dicts)
             session.commit()
-            logging.info('{0} stock records is inserted'.format(len(dicts)))
         except Exception as e:
             session.rollback()
             logging.warn(e)
