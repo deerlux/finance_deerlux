@@ -10,7 +10,7 @@ import pandas as pd
 
 DATA_DIR = os.environ['OPENSHIFT_DATA_DIR']
 
-logging.basicConfig(level=logging.WARN, 
+logging.basicConfig(level=logging.DEBUG, 
         filename=os.path.join(DATA_DIR, 'crawl_yahoo.log'),
         format='[%(levelname)s]: %(asctime)s %(filename)s:%(lineno)d %(message)s')
 
@@ -56,6 +56,7 @@ class YahooCrawler:
         result = self.session.query(StockNew.stock_code).all()
         temp_codes = [x.stock_code for x in result]
         self.codes = list(_get_stock_ps(temp_codes))
+        logging.debug(self.codes)
 
     def _get_stocks_from_file(self, filename):
         with open(filename) as f:
@@ -106,6 +107,8 @@ class YahooCrawler:
     def run(self, start=None, end=None):
         if self.db_enabled:
             starts = self._get_start_from_db()
+            logging.debug('starts is')
+            logging.debug(starts)
         elif type(start) is list:
             starts = start
         else:
@@ -149,7 +152,7 @@ class YahooCrawler:
             logging.info('{0} stock records is inserted'.format(len(dicts)))
         except Exception as e:
             session.rollback()
-            logging.warn(e) 
+            logging.warn(e)
        
 if __name__ == '__main__':
     crawler = YahooCrawler(db_enabled=True)
