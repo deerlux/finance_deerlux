@@ -53,7 +53,7 @@ class YahooCrawler:
     
     def _get_stocks_from_db(self):
         from dataModels import StockNew
-        result = self.session.query(StockNew.stock_code).filter(StockNew.stock_code.like('0%')).limit(3)
+        result = self.session.query(StockNew.stock_code).all()
         temp_codes = [x.stock_code for x in result]
         self.codes = list(_get_stock_ps(temp_codes))
 
