@@ -96,11 +96,7 @@ class YahooCrawler:
 
         for stock in stocks:
             start = self.session.query(func.max(StockDayPrice.trading_date)).filter(StockDayPrice.stock_code==stock).scalar()
-#            if start is None:
-#                starts.append(None)
-#            else:
-#                starts.append(start + datetime.timedelta(1))
-        starts.append(start)
+            starts.append(start)
 
         return starts 
 
@@ -157,7 +153,7 @@ class YahooCrawler:
                     temp = total_num
                 session.execute(ins, dicts[curr:temp])
                 logging.info('{0} stock records are inserted'.format(
-                    temp-curr]))
+                    temp-curr))
                 curr = temp
             except Exception as e:
                 logging.error(e)
