@@ -53,7 +53,8 @@ class YahooCrawler:
     
     def _get_stocks_from_db(self):
         from dataModels import StockNew
-        result = self.session.query(StockNew.stock_code).all()
+        #result = self.session.query(StockNew.stock_code).all()
+        result = self.session.query(StockNew.stock_code).filter(StockNew.stock_code.like('60000%')).limit(5)
         temp_codes = [x.stock_code for x in result]
         self.codes = list(_get_stock_ps(temp_codes))
 #        logging.debug(self.codes)
@@ -105,7 +106,7 @@ class YahooCrawler:
             starts = self._get_start_from_db()
             logging.debug('starts is')
             for c, s in zip(self.codes, starts):
-                logging.debug(c, s)
+                logging.debug('{0}: {1}'.format(c, s))
         elif type(start) is list:
             starts = start
         else:
