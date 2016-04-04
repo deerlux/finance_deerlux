@@ -158,8 +158,8 @@ class YahooCrawler:
                     temp-curr))
                 curr = temp
             except Exception as e:
-                #logging.error(e)
-                logging.error('Error')
+                logging.error(e)
+                #logging.error('Error')
                 break
        
 if __name__ == '__main__':
