@@ -163,11 +163,13 @@ class YahooCrawler:
                 if temp>total_num:
                     temp = total_num
                 session.execute(ins, dicts[curr:temp])
+                session.commit()
                 logging.info('{0} stock records are inserted'.format(
                     temp-curr))
                 curr = temp
             except Exception as e:
                 logging.error(e)
+                session.rollback()
                 #logging.error('Error')
                 break
         session.close()
