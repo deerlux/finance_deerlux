@@ -53,8 +53,8 @@ class YahooCrawler:
     
     def _get_stocks_from_db(self):
         from dataModels import StockNew
-        #result = self.session.query(StockNew.stock_code).all()
-        result = self.session.query(StockNew.stock_code).filter(StockNew.stock_code.like('60000%')).limit(100)
+        result = self.session.query(StockNew.stock_code).all()
+        #result = self.session.query(StockNew.stock_code).filter(StockNew.stock_code.like('60000%')).limit(10)
         temp_codes = [x.stock_code for x in result]
         self.codes = list(_get_stock_ps(temp_codes))
 #        logging.debug(self.codes)
@@ -125,7 +125,13 @@ class YahooCrawler:
             if data is None:
                 logging.warn('%s data is not crawled' % code)
                 continue
+            # 仅在存储为文件的方式下才将所有的数据存储到内存中一次性输出，
+            # 当为数据库模式时抓取到一支股票的数据立马入库
+            elif self.db_enabled:
+                self.save2database(data)
+                continue
 
+            
             if not self.crawled_data.empty:
                 self.crawled_data = pd.concat([self.crawled_data, data])
             else:
@@ -148,7 +154,7 @@ class YahooCrawler:
         dicts = data.reset_index().to_dict('records')
 
         total_num = len(dicts)
-        batch_ins = 1000
+        batch_ins = 2000
         curr = 0
         logging.debug('Total records is %d' % total_num)
         while curr<total_num:
@@ -164,9 +170,10 @@ class YahooCrawler:
                 logging.error(e)
                 #logging.error('Error')
                 break
+        session.close()
        
 if __name__ == '__main__':
     crawler = YahooCrawler(db_enabled=True)
     start = None
     crawler.run(start=start)
-    crawler.save2database(crawler.crawled_data)
+    #crawler.save2database(crawler.crawled_data)
