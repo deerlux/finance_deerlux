@@ -53,9 +53,11 @@ class YahooCrawler:
     
     def _get_stocks_from_db(self):
         from dataModels import StockNew
-        result = self.session.query(StockNew.stock_code).filter(StockNew.stock_code.like('0%')).limit(3)
+        result = self.session.query(StockNew.stock_code).all()
+        #result = self.session.query(StockNew.stock_code).filter(StockNew.stock_code.like('60000%')).limit(10)
         temp_codes = [x.stock_code for x in result]
         self.codes = list(_get_stock_ps(temp_codes))
+#        logging.debug(self.codes)
 
     def _get_stocks_from_file(self, filename):
         with open(filename) as f:
@@ -96,15 +98,18 @@ class YahooCrawler:
         for stock in stocks:
             start = self.session.query(func.max(StockDayPrice.trading_date)).filter(StockDayPrice.stock_code==stock).scalar()
             if start is None:
-                starts.append(yestoday())
+                starts.append(start)
             else:
-                starts.append(start + datetime.timedelta(1))
+                starts.append(start+datetime.timedelta(1))
 
         return starts 
 
     def run(self, start=None, end=None):
         if self.db_enabled:
             starts = self._get_start_from_db()
+            logging.debug('starts is')
+            for c, s in zip(self.codes, starts):
+                logging.debug('{0}: {1}'.format(c, s))
         elif type(start) is list:
             starts = start
         else:
@@ -120,7 +125,13 @@ class YahooCrawler:
             if data is None:
                 logging.warn('%s data is not crawled' % code)
                 continue
+            # 仅在存储为文件的方式下才将所有的数据存储到内存中一次性输出，
+            # 当为数据库模式时抓取到一支股票的数据立马入库
+            elif self.db_enabled:
+                self.save2database(data)
+                continue
 
+            
             if not self.crawled_data.empty:
                 self.crawled_data = pd.concat([self.crawled_data, data])
             else:
@@ -142,15 +153,29 @@ class YahooCrawler:
         ins = StockDayPrice.__table__.insert()
         dicts = data.reset_index().to_dict('records')
 
-        try:
-            session.execute(ins, dicts)
-            session.commit()
-            logging.info('{0} stock records is inserted'.format(len(dicts)))
-        except Exception as e:
-            session.rollback()
-            logging.warn(e) 
+        total_num = len(dicts)
+        batch_ins = 2000
+        curr = 0
+        logging.debug('Total records is %d' % total_num)
+        while curr<total_num:
+            try:
+                temp = curr + batch_ins
+                if temp>total_num:
+                    temp = total_num
+                session.execute(ins, dicts[curr:temp])
+                session.commit()
+                logging.info('{0} stock records are inserted'.format(
+                    temp-curr))
+                curr = temp
+            except Exception as e:
+                logging.error(e)
+                session.rollback()
+                #logging.error('Error')
+                break
+        session.close()
        
 if __name__ == '__main__':
     crawler = YahooCrawler(db_enabled=True)
+    start = None
     crawler.run(start=start)
-    crawler.save2database(crawler.crawled_data)
+    #crawler.save2database(crawler.crawled_data)
