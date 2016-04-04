@@ -97,7 +97,10 @@ class YahooCrawler:
 
         for stock in stocks:
             start = self.session.query(func.max(StockDayPrice.trading_date)).filter(StockDayPrice.stock_code==stock).scalar()
-            starts.append(start+datetime.timedelta(1))
+            if not (start in None):
+                starts.append(start)
+            else:
+                starts.append(start+datetime.timedelta(1))
 
         return starts 
 
