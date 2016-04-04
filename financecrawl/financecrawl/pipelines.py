@@ -13,12 +13,13 @@ from financecrawl.dataModels import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
+from financecrawl.settings import DB_URL
 
 import logging
 
 import os
 
-engine = create_engine(os.environ['OPENSHIFT_POSTGRESQL_DB_URL'])
+engine = create_engine(DB_URL)
 Session = sessionmaker()
 session = Session(bind=engine)
 
@@ -38,7 +39,7 @@ class RongziPipeline(object):
             try:
                 session.commit()
             except IntegrityError as e:
-                logging.warning('record insert failed: {0}'.format(e.message.decode('utf-8')))
+                logging.error('record insert failed: {0}'.format(e.message.decode('utf-8')))
                 session.rollback()
         
         if type(item) == RongziMingxiItem:
@@ -70,7 +71,7 @@ class RongziPipeline(object):
         try:
             session.commit()
         except IntegrityError as e:
-            logging.warning('record mingxi insert failed: {0}'.format(e.message.decode('utf-8')))
+            logging.error('record mingxi insert failed: {0}'.format(e.message.decode('utf-8')))
             session.rollback()
 
         return item
@@ -90,8 +91,8 @@ class RongziPipeline(object):
             if result[0].stock_name != stock.stock_name:
                 result[0].stock_name = stock.stock_name
                 session.commit()
-                logging.info('stock name is updated: %s: %s -> %s' % (stock.stock_code, 
-                    result[0].stock_name.decode('utf-8'), stock_name.decode('utf-8')))
+                logging.info('stock name is updated: {0}: {1} -> {2}'.format(stock.stock_code, 
+                    result[0].stock_name, stock.stock_name))
        
 
     def process_multiple_mingxi_item(self, item):
@@ -120,7 +121,7 @@ class RongziPipeline(object):
             conn.execute(ins, mingxi_new)
             logging.info('{0} records is inserted'.format(len(item['stock_code'])))
         except IntegrityError as e:
-            logging.warning('Error to insert stock rongzi data to database: {0}'.format(e.message.decode('utf-8')))
+            logging.error('Error to insert stock rongzi data to database: {0}'.format(e.message.decode('utf-8')))
             
         logging.info('{0} stock rongzi data is inserted to database'.format(len(item['stock_code'])))
         

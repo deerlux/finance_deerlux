@@ -16,9 +16,12 @@ BOT_NAME = 'financecrawl'
 SPIDER_MODULES = ['financecrawl.spiders']
 NEWSPIDER_MODULE = 'financecrawl.spiders'
 
-LOG_LEVEL = logging.WARN
+DB_URL = os.environ['OPENSHIFT_POSTGRESQL_DB_URL']
+
+LOG_LEVEL = logging.INFO
 #LOG_FILE = 'financecrawl.log'
 LOG_FILE=os.path.join(os.environ['OPENSHIFT_DATA_DIR'], 'financecrawl.log')
+LOG_FORMAT='%(asctime)s %(filename)s:%(lineno)d [%(levelname)s]: %(message)s'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'financecrawl (+http://www.yourdomain.com)'
@@ -54,9 +57,14 @@ TELNETCONSOLE_ENABLED=False
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
+#WEBKIT_DOWNLOADER=['shrongzi']
+DOWNLOADER_MIDDLEWARES = {
 #    'financecrawl.middlewares.MyCustomDownloaderMiddleware': 543,
-#}
+#    'financecrawl.downloaders.WebkitDownloader':543,
+}
+
+import os
+os.environ['DISPLAY']=':0'
 
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html

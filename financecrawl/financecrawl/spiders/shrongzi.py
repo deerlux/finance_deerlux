@@ -6,7 +6,8 @@ import datetime, os, re
 import xlrd
 from financecrawl.items import RongziItem, RongziMingxiItem
 from dateutil import parser
-
+from financecrawl.dataModels import get_max_trading_date, Financing, get_previous_trading_date, get_next_trading_date
+from financecrawl.settings import DB_URL
 
 #def is_weekend(in_date):
 #    '''判断是否是周末
@@ -28,23 +29,41 @@ gen_url = lambda crawl_date: '{0}{1}{2}{3}'.format(
 class ShrongziSpider(scrapy.Spider):
     name = "shrongzi"
     allowed_domains = ["www.sse.com.cn"]
+    start_urls = []
 
     def __init__(self, date_in=None, *args, **kwargs):
         super(ShrongziSpider, self).__init__(*args, **kwargs)
         if date_in:
             crawl_date = parser.parse(date_in)
+            self.start_urls.append(gen_url(crawl_date))
         else:
-            today = datetime.date.today()
-            crawl_date = datetime.date.today() - datetime.timedelta(1)
+            max_date = get_max_trading_date(metadata=Financing,
+                    url=DB_URL,
+                    market='sh')
+            self.logger.info('max date is {0}'.format(max_date))
 
-        self.start_urls = (gen_url(crawl_date),)
+            if max_date is None:
+                start_date = get_previous_trading_date(datetime.date.today())
+            else:
+                start_date = get_next_trading_date(max_date)
+            
+            end_date = get_previous_trading_date(datetime.date.today())
+            crawl_date = start_date
+            while crawl_date <= end_date:
+                self.start_urls.append(gen_url(crawl_date))
+                crawl_date = get_next_trading_date(crawl_date)        
 
     def parse(self, response):
         if response.status != 200:
             return 
         self.logger.info("Crawled url: {0}".format(response.url))
         
-        xls = xlrd.open_workbook(file_contents=response.body)
+        try:
+            xls = xlrd.open_workbook(file_contents=response.body)
+        except Exception as e:
+            self.logger.error(e)
+            yield None
+
         sheet1 = xls.sheet_by_index(0)
         sheet2 = xls.sheet_by_index(1)
         
