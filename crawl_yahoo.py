@@ -10,7 +10,7 @@ import pandas as pd
 
 DATA_DIR = os.environ['OPENSHIFT_DATA_DIR']
 
-logging.basicConfig(level=logging.DEBUG, 
+logging.basicConfig(level=logging.WARN, 
         filename=os.path.join(DATA_DIR, 'crawl_yahoo.log'),
         format='[%(levelname)s]: %(asctime)s %(filename)s:%(lineno)d %(message)s')
 
