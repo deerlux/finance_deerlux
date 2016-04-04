@@ -58,6 +58,12 @@ class SzrongziSpider(scrapy.Spider):
             txtDate = self.date_in.strftime('%Y-%m-%d')
             yield(scrapy.Request(urlbase1+txtDate, callback=self.parse_excel))
             yield(scrapy.Request(urlbase2+txtDate, callback=self.parse_excel))
+        else:
+            txtDate = response.xpath('//form[@name="frmtab2"]//tr[1]//span[2]/text()').extract()[0]
+            yield(scrapy.Request(urlbase1+txtDate, callback=self.parse_excel))
+            yield(scrapy.Request(urlbase2+txtDate, callback=self.parse_excel))
+
+
 
     def parse_excel(self, response):
         if response.status != 200:
