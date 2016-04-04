@@ -4,6 +4,7 @@
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+import datetime
 
 Base = declarative_base()
 
@@ -169,6 +170,62 @@ class StockDayPrice(Base):
             sa.UniqueConstraint('stock_code', 'trading_date'),
             )
 
+def get_max_trading_date(metadata, url, *args, **kwargs):
+    '''if table_name == 'rongzi' market must be specified'''
+
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy import func
+    
+    try:
+        engine = create_engine(url)
+    except Exception as e:
+        logging.error('url must be valid in get_max_trading_date')
+        logging.error(e)
+        return None
+
+    Session = sessionmaker()
+    session = Session(bind=engine)
+
+    if metadata is Financing:
+        try:
+            market = kwargs['market']
+        except Exception as e:
+            logging.error('market must be specified when metadata is Financing')
+            logging.error(e)
+            return None
+
+        return session.query(func.max(Financing.trading_day)).filter(Financing.market==market).scalar()
+    else:
+        return None
+
+def get_previous_trading_date(date_in):
+    try:
+        weekday = date_in.weekday()
+    except Exception as e:
+        logging.error('date_in of get_previous_trading_day must be datetime')
+        logging.error(e)
+        return None
+    
+    if weekday == 6:
+        return date_in - datetime.timedelta(2)
+    if weekday == 0:
+        return date_in - datetime.timedelta(3)
+    return date_in - datetime.timedelta(1)
+
+def get_next_trading_date(date_in):
+    try:
+        weekday = date_in.weekday()
+    except Exception as e:
+        logging.error('date_in of get_previous_trading_day must be datetime')
+        logging.error(e)
+        return None
+
+    if weekday == 5:
+        return date_in + datetime.timedelta(2)
+    if weekday == 4:
+        return date_in + datetime.timedelta(3)
+    return date_in + datetime.timedelta(1)
 
 if __name__ == '__main__':
     import os
