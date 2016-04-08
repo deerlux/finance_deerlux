@@ -122,8 +122,6 @@ class RongziPipeline(object):
             logging.info('{0} records is inserted'.format(len(item['stock_code'])))
         except IntegrityError as e:
             logging.error('Error to insert stock rongzi data to database: {0}'.format(e.message.decode('utf-8')))
-            
-        logging.info('{0} stock rongzi data is inserted to database'.format(len(item['stock_code'])))
         
         return item
 

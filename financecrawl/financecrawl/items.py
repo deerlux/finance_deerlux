@@ -52,4 +52,10 @@ class StockAccountItem(scrapy.Item):
     trading_a = scrapy.Field()
     trading_b = scrapy.Field()
 
+class StockItem(scrapy.Item):
+    stock_code = scrapy.Field()
+    stock_name = scrapy.Field()
+    market = scrapy.Field()
+    available = scrapy.Field()
+    stock_type = scrapy.Field()
 

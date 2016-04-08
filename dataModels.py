@@ -129,6 +129,7 @@ class StockNew(Base):
     stock_code = sa.Column(sa.String(12), primary_key=True)
     stock_name = sa.Column(sa.String(32), nullable=False)
     market = sa.Column(sa.String(8))
+    available = sa.Column(sa.Boolean, default=True)
 
     day_prices = relationship('StockDayPrice', backref='stock_new')
 
