@@ -12,5 +12,3 @@ setuptools
 matplotlib
 lxml
 python-dateutil
-pandas-datareader
-pandas
