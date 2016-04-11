@@ -59,3 +59,18 @@ class StockItem(scrapy.Item):
     available = scrapy.Field()
     stock_type = scrapy.Field()
 
+class FundItem(scrapy.Item):
+    fund_code = scrapy.Field()
+    fund_name = scrapy.Field()
+    fund_type = scrapy.Field()
+    fund_company = scrapy.Field()
+   
+class FundStockItem(scrapy.Item):
+    fund_code = scrapy.Field()
+    stock_code = scrapy.Field()
+    stock_name = scrapy.Field()
+    stock_amount = scrapy.Field()
+    stock_value = scrapy.Field()
+    stock_value_ratio = scrapy.Field()
+    public_date = scrapy.Field()
+

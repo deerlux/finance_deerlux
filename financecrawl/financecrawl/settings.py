@@ -18,7 +18,7 @@ NEWSPIDER_MODULE = 'financecrawl.spiders'
 
 DB_URL = os.environ['OPENSHIFT_POSTGRESQL_DB_URL']
 
-LOG_LEVEL = logging.INFO
+LOG_LEVEL = logging.DEBUG
 #LOG_FILE = 'financecrawl.log'
 LOG_FILE=os.path.join(os.environ['OPENSHIFT_DATA_DIR'], 'financecrawl.log')
 LOG_FORMAT='%(asctime)s %(filename)s:%(lineno)d [%(levelname)s]: %(message)s'
@@ -76,6 +76,8 @@ os.environ['DISPLAY']=':0'
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'financecrawl.pipelines.RongziPipeline': 300,
+    'financecrawl.pipelines.FundBasicPipeline':400,
+    'financecrawl.pipelines.FundStockPipeline':500,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

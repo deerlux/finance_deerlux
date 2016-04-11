@@ -7,7 +7,7 @@
 
 from __future__ import unicode_literals
 
-from financecrawl.items import RongziItem, RongziMingxiItem, StockAccountItem
+from financecrawl.items import *
 from financecrawl.dataModels import *
 
 from sqlalchemy import create_engine
@@ -126,6 +126,7 @@ class RongziPipeline(object):
         return item
 
 class StockAccountPipeline(object):
+    '''处理股票账户新开户数据'''
     def process_item(self, item, spider):
         if not (type(item) is StockAccountItem):
             return item
@@ -149,3 +150,99 @@ class StockAccountPipeline(object):
             session.rollback()
 
         return item
+
+class FundBasicPipeline(object):
+    '''处理基金基础信息的类'''
+    def process_item(self, item, spider):
+        if not (type(item) is FundItem):
+            return item
+
+        def safe_get_company_id(item):
+            company = item['fund_company']
+            cid = session.query(FundCompany.company_id).filter(FundCompany.company_name==company).scalar()
+            if cid:
+                return cid
+            db_com = FundCompany(company_name=company)
+            session.add(db_com)
+            try:
+                session.commit()
+                logging.info('Fund company {0} is inserted.'.format(company))
+                return db_com.company_id
+            except Exception as e:
+                logging.error(e)
+                session.rollback()
+                raise
+
+        def safe_get_type_id(item):
+            type_name = item['fund_type']
+            tid = session.query(FundType.type_id).filter(FundType.type_name==type_name).scalar()
+            if tid:
+                return tid
+
+            db_type = FundType(type_name=type_name)
+            session.add(db_type)
+            try:
+                session.commit()
+                logging.info('Fund type {0} is inserted.'.format(type_name))
+                return db_type.type_id
+            except Exception as e:
+                logging.error(e)
+                session.rollback()
+                raise
+
+        fund_code = item['fund_code']
+        try:
+            session.query(Fund).filter(Fund.fund_code==fund_code).one()
+            return 
+        except Exception:
+            db_fund = Fund(fund_code=fund_code,
+                    fund_name = item['fund_name'],
+                    type_id = safe_get_type_id(item),
+                    company_id = safe_get_company_id(item))
+            session.add(db_fund)
+            try:
+                session.commit()
+                logging.info('{0}: {1} is inserted.'.format(fund_code,item['fund_name']))
+            except Exception as e:
+                logging.error(e)
+                session.rollback()
+                raise
+
+        
+class FundStockPipeline(object):
+    '''处理基金的股票持仓数据'''
+    def process_item(self, item, spider):
+        if not type(item) is FundStockItem:
+            return item
+        db_item =FundStockData()
+        db_item.fund_code = item['fund_code']
+        #db_item.stock_code = item['stock_code']
+        db_item.public_date = item['public_date']
+        db_item.stock_value_ratio = item['stock_value_ratio']
+
+        stock_code = item['stock_code']
+        stock_name = item['stock_name']
+
+        stock = session.query(StockNew).filter(StockNew.stock_code==stock_code).scalar()
+        if not stock:            
+            if stock_code.startswith('0') or stock_code.startswith('3') or stock_code.startswith('1'):
+                market = 'sz';
+            else:
+                market = 'sh';
+            stock = StockNew(stock_code=stock_code,
+                    stock_name=stock_name,
+                    market=market,
+                    available=True)
+            
+        db_item.stock=stock
+        session.add(db_item)
+        try:
+            session.commit()
+            logging.info('{0} {1} for fund {2} is inserted: {3}'.format(db_item.stock_code, 
+                db_item.stock_value_ratio,
+                db_item.fund_code,
+                db_item.public_date))
+        except Exception as e:
+            logging.error(u'{0}'.format(e.message.decode('utf-8')))
+            session.rollback()
+            

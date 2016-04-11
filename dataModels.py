@@ -3,7 +3,7 @@
 
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship,backref
 import datetime
 
 Base = declarative_base()
@@ -171,6 +171,58 @@ class StockDayPrice(Base):
             sa.UniqueConstraint('stock_code', 'trading_date'),
             )
 
+class Fund(Base):
+    __tablename__ = 'fund'
+    fund_code = sa.Column(sa.String(12), primary_key=True)
+    fund_name = sa.Column(sa.String(32))
+    type_id = sa.Column(sa.ForeignKey('fund_type.type_id'))
+    company_id = sa.Column(sa.ForeignKey('fund_company.company_id'))
+    
+class FundType(Base):
+    __tablename__ = 'fund_type'
+    type_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    type_name = sa.Column(sa.String(16))
+
+    funds = relationship('Fund', backref='fund_type')
+
+class FundCompany(Base):
+    __tablename__ = 'fund_company'
+    company_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    company_name = sa.Column(sa.String(24))
+
+    funds = relationship('Fund', backref='fund_company')
+
+class FundStockData(Base):
+    __tablename__ = 'fund_stock_data'
+
+    data_id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    fund_code = sa.Column(sa.ForeignKey('fund.fund_code'))
+    stock_code = sa.Column(sa.ForeignKey('stock_new.stock_code'))
+    public_date = sa.Column(sa.Date, nullable=False)
+    stock_amount = sa.Column(sa.Integer)
+    stock_value = sa.Column(sa.Float)
+    stock_value_ratio = sa.Column(sa.Float)
+
+    fund = relationship("Fund", backref=backref('fund_stock_data'))
+    stock = relationship('StockNew', backref=backref('fund_stock_data'))
+
+    __table_args__ = (sa.UniqueConstraint('fund_code', 
+        'stock_code', 'public_date'),)
+
+class FundValue(Base):
+    __tablename__ = 'fund_value'
+
+    data_id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+    fund_code = sa.Column(sa.ForeignKey('fund.fund_code'))
+    trading_date = sa.Column(sa.Date, nullable=False)
+    current_value = sa.Column(sa.Float)
+    accumulative_value = sa.Column(sa.Float)
+
+    __table_args__ =(sa.UniqueConstraint('fund_code',
+        'trading_date'),
+        )
+
+
 def get_max_trading_date(metadata, url, *args, **kwargs):
     '''if table_name == 'rongzi' market must be specified'''
 
@@ -228,6 +280,7 @@ def get_next_trading_date(date_in):
         return date_in + datetime.timedelta(3)
     return date_in + datetime.timedelta(1)
 
+   
 if __name__ == '__main__':
     import os
     from sqlalchemy.orm import sessionmaker
