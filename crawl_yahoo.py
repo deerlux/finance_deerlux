@@ -21,9 +21,11 @@ def _get_stock_ps(stocks):
     is_sz = lambda x: x.startswith('0') or x.startswith('3')
     is_sh = lambda x: x.startswith('6')
     for stock in stocks:
-        if is_sz(stock):
+        if stock.find('.') != -1:
+            yield stock
+        elif is_sz(stock):
             yield stock + '.sz'
-        if is_sh(stock):
+        elif is_sh(stock):
             yield stock + '.ss'
  
 '''改写一下，直接存储到本地文件，然后再编写一下数据库相关的函数从文件中读取后入库'''

@@ -36,6 +36,7 @@ class ShrongziSpider(scrapy.Spider):
         if date_in:
             crawl_date = parser.parse(date_in)
             self.start_urls.append(gen_url(crawl_date))
+            self.logger.info('shrongzi URL: {0}'.format(self.start_urls[0]))
         else:
             max_date = get_max_trading_date(metadata=Financing,
                     url=DB_URL,
