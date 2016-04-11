@@ -43,6 +43,12 @@ if __name__ == '__main__':
     YahooCrawler.save2database(data)
 
 ```
+# 基金数据抓取
+目前完成了基金持仓数据抓取相关内容，基金的基本信息用financecrawl/financecrawl/crawl_fundlist.ipynb来抓取，是一个ipython notebook写的程序。持仓数据抓取的调用方式如下：
+```
+cd financecrawl
+scrapy crawl funds_crawl
+```
 
     
 
