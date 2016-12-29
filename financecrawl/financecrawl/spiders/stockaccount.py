@@ -26,7 +26,8 @@ class StockaccountSpider(scrapy.Spider):
 
         dateStr = crawl_date.strftime("%Y.%m.%d")
         
-        baseurl = 'http://www.chinaclear.cn/cms-webapp/wcm/getManuscriptByTitle_mzkb.action?weekflag=prevWeek&dateStr='
+#        baseurl = 'http://www.chinaclear.cn/cms-webapp/wcm/getManuscriptByTitle_mzkb.action?weekflag=prevWeek&dateStr='
+        baseurl = 'http://www.chinaclear.cn/cms-search/view.action?action=china&dateType=&channelIdStr=6ac54ce22db4474abc234d6edbe53ae7&dateStr='
         self.start_urls.append(baseurl+dateStr)
 
 
@@ -65,5 +66,7 @@ class StockaccountSpider(scrapy.Spider):
         item['position_b'] = extract_data(16)
         item['trading_a'] = extract_data(19)
         item['trading_b'] = extract_data(20)
+
+        self.logger.info('The following url is parsed: {0}'.format(response.url))
         
         return item
