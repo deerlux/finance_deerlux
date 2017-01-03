@@ -24,12 +24,14 @@ class StockaccountSpider(scrapy.Spider):
 
         self.crawl_date = crawl_date
 
-        dateStr = crawl_date.strftime("%Y.%m.%d")
+        self.dateStr = crawl_date.strftime("%Y.%m.%d")
         
 #        baseurl = 'http://www.chinaclear.cn/cms-webapp/wcm/getManuscriptByTitle_mzkb.action?weekflag=prevWeek&dateStr='
-        baseurl = 'http://www.chinaclear.cn/cms-search/view.action?action=china&dateType=&channelIdStr=6ac54ce22db4474abc234d6edbe53ae7&dateStr='
-        self.start_urls.append(baseurl+dateStr)
-
+#        self.baseurl = 'http://www.chinaclear.cn/cms-search/view.action?action=china&dateType=&channelIdStr=6ac54ce22db4474abc234d6edbe53ae7&dateStr='
+        self.baseurl = 'http://www.chinaclear.cn/cms-search/view.action?action=china'
+#        self.start_urls.append(baseurl+dateStr)
+    def start_requests(self):
+        return [scrapy.FormRequest(self.baseurl, formdata={'channelIdStr':'6ac54ce22db4474abc234d6edbe53ae7', 'dateStr':self.dateStr})]
 
     def parse(self, response):
         if response.status != 200:
