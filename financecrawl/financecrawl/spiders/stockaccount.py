@@ -9,7 +9,6 @@ class StockaccountSpider(scrapy.Spider):
     name = "stockaccount"
     allowed_domains = ["www.chinaclear.cn"]
     start_urls = []
-    #['http://www.chinaclear.cn/cms-webapp/wcm/getManuscriptByTitle_mzkb.action?weekflag=prevWeek&dateStr=2016.03.07']
 
     def __init__(self, date_in=None, *args, **kwargs):
         super(StockaccountSpider, self, *args, **kwargs)
@@ -17,7 +16,7 @@ class StockaccountSpider(scrapy.Spider):
         today = datetime.date.today()
 
         if not date_in:
-            crawl_date = datetime.date.today() - datetime.timedelta(today.weekday())
+            crawl_date = datetime.date.today() - datetime.timedelta(today.weekday()+3) 
         else:
             temp_date = parse(date_in).date()
             crawl_date = temp_date - datetime.timedelta(temp_date.weekday())
@@ -26,23 +25,15 @@ class StockaccountSpider(scrapy.Spider):
 
         self.dateStr = crawl_date.strftime("%Y.%m.%d")
         
-#        baseurl = 'http://www.chinaclear.cn/cms-webapp/wcm/getManuscriptByTitle_mzkb.action?weekflag=prevWeek&dateStr='
-#        self.baseurl = 'http://www.chinaclear.cn/cms-search/view.action?action=china&dateType=&channelIdStr=6ac54ce22db4474abc234d6edbe53ae7&dateStr='
         self.baseurl = 'http://www.chinaclear.cn/cms-search/view.action?action=china'
-#        self.start_urls.append(baseurl+dateStr)
+        
     def start_requests(self):
         return [scrapy.FormRequest(self.baseurl, formdata={'channelIdStr':'6ac54ce22db4474abc234d6edbe53ae7', 'dateStr':self.dateStr})]
 
     def parse(self, response):
         if response.status != 200:
             return
-#        try:
-#            texts = response.xpath('//tbody//td[2]//span/text()').extract()
-#        except IndexError as e:
-#            self.logger.warn('Error occured when parse result {0}'.format(
-#                reponse.url))
-#            return
-        
+       
         result = response.xpath('//td//tbody//tr')
         if len(result) <21:
             self.logger.error('Error occured when parse result {0}'.format(
