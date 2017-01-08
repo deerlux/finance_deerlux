@@ -39,7 +39,7 @@ class RongziPipeline(object):
             try:
                 session.commit()
             except IntegrityError as e:
-                logging.error('record insert failed: {0}'.format(e.message.decode('utf-8')))
+                logging.error(u'record insert failed: {0}'.format(e.message))
                 session.rollback()
         
         if type(item) == RongziMingxiItem:
@@ -71,7 +71,7 @@ class RongziPipeline(object):
         try:
             session.commit()
         except IntegrityError as e:
-            logging.error('record mingxi insert failed: {0}'.format(e.message.decode('utf-8')))
+            logging.error(u'record mingxi insert failed: {0}'.format(e.message))
             session.rollback()
 
         return item
@@ -85,13 +85,13 @@ class RongziPipeline(object):
         if len(result) == 0:
             session.add(stock)
             session.commit()
-            logging.info('stock info is inserted: %s: %s' %(stock.stock_code, stock.stock_name.decode('utf-8'))) 
+            logging.info(u'stock info is inserted: {0}: {1}'.format(stock.stock_code, stock.stock_name)) 
 
         elif len(result) == 1:
             if result[0].stock_name != stock.stock_name:
                 result[0].stock_name = stock.stock_name
                 session.commit()
-                logging.info('stock name is updated: {0}: {1} -> {2}'.format(stock.stock_code, 
+                logging.info(u'stock name is updated: {0}: {1} -> {2}'.format(stock.stock_code, 
                     result[0].stock_name, stock.stock_name))
        
 
@@ -121,7 +121,7 @@ class RongziPipeline(object):
             conn.execute(ins, mingxi_new)
             logging.info('{0} records is inserted'.format(len(item['stock_code'])))
         except IntegrityError as e:
-            logging.error('Error to insert stock rongzi data to database: {0}'.format(e.message.decode('utf-8')))
+            logging.error(u'Error to insert stock rongzi data to database: {0}'.format(e.message))
         
         return item
 
@@ -146,7 +146,7 @@ class StockAccountPipeline(object):
         try:
             session.commit()
         except Exception as e:
-            logging.error('Error when insert stockaccount: {0}'.format(e.message.decode('utf-8')))
+            logging.error(u'Error when insert stockaccount: {0}'.format(e.message.decode('utf-8')))
             session.rollback()
 
         return item

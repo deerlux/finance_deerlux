@@ -38,7 +38,7 @@ class ShrongziSpider(scrapy.Spider):
         super(ShrongziSpider, self).__init__(*args, **kwargs)
         if date_in:
             crawl_date = parser.parse(date_in)
-            
+            self.start_urls.append(gen_url(crawl_date))
         else:
             max_date = get_max_trading_date(metadata=Financing,
                     url=DB_URL,
@@ -46,16 +46,21 @@ class ShrongziSpider(scrapy.Spider):
             self.logger.debug('max date is {0}'.format(max_date))
 
             if max_date is None:
-                crawl_date = get_previous_trading_date(datetime.date.today())
+                start_date = get_previous_trading_date(datetime.date.today())
             else:
-                crawl_date = get_next_trading_date(max_date)
-            
-        self.start_urls.append(gen_url(crawl_date))
-        self.logger.info('shrongzi URL: {0}'.format(self.start_urls[0]))
+                start_date = get_next_trading_date(max_date)
+
+            end_date = get_previous_trading_date(datetime.date.today())
+            crawl_date = start_date
+            while crawl_date <= end_date:
+                self.start_urls.append(gen_url(crawl_date))
+                crawl_date = get_next_trading_date(crawl_date)         
 
     def parse(self, response):
         if response.status != 200:
+            self.logger.debug('Error to crawl page from %s' % response.url)
             return 
+
         self.logger.info("Crawled url: {0}".format(response.url))
         
         try:
