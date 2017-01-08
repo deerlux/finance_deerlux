@@ -7,7 +7,10 @@ import xlrd
 from financecrawl.items import RongziItem, RongziMingxiItem
 from dateutil import parser
 from financecrawl.dataModels import get_max_trading_date, Financing, get_previous_trading_date, get_next_trading_date
-from financecrawl.settings import DB_URL
+from financecrawl.settings import DB_URL, LOG_LEVEL
+import logging
+
+from scrapy.shell import inspect_response
 
 #def is_weekend(in_date):
 #    '''判断是否是周末
@@ -35,24 +38,20 @@ class ShrongziSpider(scrapy.Spider):
         super(ShrongziSpider, self).__init__(*args, **kwargs)
         if date_in:
             crawl_date = parser.parse(date_in)
-            self.start_urls.append(gen_url(crawl_date))
-            self.logger.info('shrongzi URL: {0}'.format(self.start_urls[0]))
+            
         else:
             max_date = get_max_trading_date(metadata=Financing,
                     url=DB_URL,
                     market='sh')
-            self.logger.info('max date is {0}'.format(max_date))
+            self.logger.debug('max date is {0}'.format(max_date))
 
             if max_date is None:
-                start_date = get_previous_trading_date(datetime.date.today())
+                crawl_date = get_previous_trading_date(datetime.date.today())
             else:
-                start_date = get_next_trading_date(max_date)
+                crawl_date = get_next_trading_date(max_date)
             
-            end_date = get_previous_trading_date(datetime.date.today())
-            crawl_date = start_date
-            while crawl_date <= end_date:
-                self.start_urls.append(gen_url(crawl_date))
-                crawl_date = get_next_trading_date(crawl_date)        
+        self.start_urls.append(gen_url(crawl_date))
+        self.logger.info('shrongzi URL: {0}'.format(self.start_urls[0]))
 
     def parse(self, response):
         if response.status != 200:
@@ -70,20 +69,24 @@ class ShrongziSpider(scrapy.Spider):
         
         datestr = re.findall('\d+', os.path.basename(response.url))[0]
         trading_day = datetime.datetime.strptime(datestr, "%Y%m%d")
-            
-        for k in range(sheet1.nrows):
-            if k == 0:
-                continue
-            item = RongziItem()
-            item["trading_day"] = trading_day
-            item["market"] = "sh"
-            item["rongzi_yue"] = float(sheet1.row_values(k)[0])
-            item["rongzi_mairu"] = float(sheet1.row_values(k)[1])
-            item["rongquan_yuliang"] = float(sheet1.row_values(k)[2])
-            item["rongquan_yuliang_jine"] = float(sheet1.row_values(k)[3])
-            item["rongquan_maichu"] = float(sheet1.row_values(k)[4])
-            yield item
+        
+# 首先处理汇总数据，是第一个sheet，这个sheet只有两行，第一行是标题，第二行是数据
+        if sheet1.nrows < 2:
+            self.logger.error("The sheet of summary data'row less than 2")
+            yield 
 
+        k = 1
+        item = RongziItem()
+        item["trading_day"] = trading_day
+        item["market"] = "sh"
+        item["rongzi_yue"] = float(sheet1.row_values(k)[0])
+        item["rongzi_mairu"] = float(sheet1.row_values(k)[1])
+        item["rongquan_yuliang"] = float(sheet1.row_values(k)[2])
+        item["rongquan_yuliang_jine"] = float(sheet1.row_values(k)[3])
+        item["rongquan_maichu"] = float(sheet1.row_values(k)[4])
+        yield item
+        
+# 然后处理明细数据，第二个sheet
         mingxi_item = RongziMingxiItem()
         mingxi_item["trading_day"] = trading_day
         mingxi_item['market']='sh'
