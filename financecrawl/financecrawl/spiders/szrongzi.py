@@ -73,15 +73,17 @@ class SzrongziSpider(scrapy.Spider):
             item = RongziItem()
 
             doc = lxml.html.fromstring(response.body)
+# TODO: 这块后续要改为，如果doc.xpath得出的结果长度大于1,则将两个字符串连接起来再进行转换
             try:
-                item['rongzi_mairu'] = str2float(doc.xpath('//tr/td[1]/text()')[1])
-                item['rongzi_yue'] = str2float(doc.xpath('//tr/td[2]/text()')[1])
-                item['rongquan_maichu'] = str2float(doc.xpath('//tr/td[3]/text()')[1])
-                item['rongquan_yuliang'] = str2float(doc.xpath('//tr/td[4]/text()')[1])
-                item['rongquan_yuliang_jine'] = str2float(doc.xpath('//tr/td[5]/text()')[1])
+                item['rongzi_mairu'] = str2float(doc.xpath('//tr/td[1]/text()')[0])
+                item['rongzi_yue'] = str2float(doc.xpath('//tr/td[2]/text()')[0])
+                item['rongquan_maichu'] = str2float(doc.xpath('//tr/td[3]/text()')[0])
+                item['rongquan_yuliang'] = str2float(doc.xpath('//tr/td[4]/text()')[0])
+                item['rongquan_yuliang_jine'] = str2float(doc.xpath('//tr/td[5]/text()')[0])
             except IndexError, e:
                 self.logger.error('{0} : {1}'.format(response.url, e.message))
-                return     
+                raise e
+                #return     
         
             date_str = re.findall('txtDate=([\d-]+)', response.url)[0]
         
