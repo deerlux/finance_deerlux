@@ -14,9 +14,9 @@ import datetime
 
 def str2float(str_in):
     if type(str_in) is list:
-        return [string.atof(''.join(x.split(','))) for x in str_in]
+        return [float(''.join(x.split(','))) for x in str_in]
     else:
-        return string.atof(string.join(str_in.split(','), ''))
+        return float(''.join(str_in.split(',')))
 
 class SzrongziSpider(scrapy.Spider):
     name = "szrongzi"
@@ -80,7 +80,7 @@ class SzrongziSpider(scrapy.Spider):
                 item['rongquan_maichu'] = str2float(doc.xpath('//tr/td[3]/text()')[0])
                 item['rongquan_yuliang'] = str2float(doc.xpath('//tr/td[4]/text()')[0])
                 item['rongquan_yuliang_jine'] = str2float(doc.xpath('//tr/td[5]/text()')[0])
-            except IndexError, e:
+            except IndexError as e:
                 self.logger.error('{0} : {1}'.format(response.url, e.message))
                 raise e
                 #return     
